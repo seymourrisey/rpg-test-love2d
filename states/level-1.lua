@@ -8,6 +8,21 @@ local CameraSystem = require("systems.camera")
 
 local Level1 = {}
 
+
+function Level1:mousepressed(x, y, button)
+    if self.player and self.player.mousepressed then
+        self.player:mousepressed(x, y, button)
+    end
+end
+
+function Level1:mousereleased(x, y, button)
+    if self.player and self.player.released then
+        self.player:mousereleased(x, y, button)
+    end
+end
+
+
+
 function Level1:load()
     self.world = wf.newWorld(0, 0)
     self.map = sti("assets/maps/test-map.lua")
@@ -37,6 +52,14 @@ function Level1:draw()
 
         self.map:drawLayer(self.map.layers["Trees-bush"])
     self.cameraSystem:detach()
+
+    -- ======================================
+    -- HUD / Debug UI (tetap di layar)
+    -- ======================================
+    love.graphics.setColor(1,1,1,1)
+    love.graphics.print("DEBUG: state = " .. self.player.state, 10, 10)
+    love.graphics.print("DEBUG: HP = " .. self.player.health.hp, 10, 30)
 end
+
 
 return Level1

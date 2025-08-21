@@ -1,6 +1,7 @@
 -- player.lua
 
 local anim8 = require 'assets/lib/anim8'
+local HealthSystem = require 'systems/health'
 
 local Player = {}
 Player.__index = Player
@@ -8,29 +9,27 @@ Player.__index = Player
 function Player.new(x, y)
     local self = setmetatable({}, Player)
 
+    self.health = HealthSystem.new(100)
+
     -- Load sprite sheet
     self.image = love.graphics.newImage("assets/sprites/kevin-spritesheets.png")
-
-    -- Ukuran frame LPC (64x64)
     local grid = anim8.newGrid(64, 64, self.image:getWidth(), self.image:getHeight())
 
-    -- Animasi (idle = frame pertama tiap baris, walk = 8 frame)
     self.animations = {
         idleUp     = anim8.newAnimation(grid(1, 9), 0.2),
         idleLeft    = anim8.newAnimation(grid(1, 10), 0.2),
         idleDown    = anim8.newAnimation(grid(1, 11), 0.2),
         idleRight   = anim8.newAnimation(grid(1, 12), 0.2),
 
-        walkUp      = anim8.newAnimation(grid('1-8', 9), 0.12),
-        walkLeft    = anim8.newAnimation(grid('1-8', 10), 0.12),
-        walkDown    = anim8.newAnimation(grid('1-8', 11), 0.12),
-        walkRight   = anim8.newAnimation(grid('1-8', 12), 0.12),
+        walkUp      = anim8.newAnimation(grid('1-9', 9), 0.12),
+        walkLeft    = anim8.newAnimation(grid('1-9', 10), 0.12),
+        walkDown    = anim8.newAnimation(grid('1-9', 11), 0.12),
+        walkRight   = anim8.newAnimation(grid('1-9', 12), 0.12),
     }
 
     self.x, self.y = x, y
     self.speed = 100
 
-    -- default menghadap bawah & idle
     self.facing = "Down"
     self.state = "idleDown"
 
@@ -41,7 +40,7 @@ function Player:update(dt)
     local dx, dy = 0, 0
     local moving = false
 
-    -- kontrol vertikal
+    -- Controls
     if love.keyboard.isDown("up", "w") then
         dy = -1
         self.facing = "Up"
@@ -53,8 +52,6 @@ function Player:update(dt)
         self.state = "walkDown"
         moving = true
     end
-
-    -- kontrol horizontal
     if love.keyboard.isDown("left", "a") then
         dx = -1
         self.facing = "Left"
@@ -67,7 +64,6 @@ function Player:update(dt)
         moving = true
     end
 
-    -- Kalau tidak bergerak → idle
     if not moving then
         self.state = "idle" .. self.facing
     end
@@ -90,8 +86,13 @@ end
 
 function Player:draw()
     -- offset (32,32) biar titik player di tengah sprite
-    self.scale = 0.8  -- taruh di constructor Player.new()
+    self.scale = 0.6  -- taruh di constructor Player.new()
     self.animations[self.state]:draw(self.image, self.x, self.y, 0, self.scale, self.scale, 32, 32)
+
+    love.graphics.setColor(1,0,0)
+    love.graphics.print("HP: " .. self.health.hp, self.x - 20, self.y - 50)
+
+    love.graphics.setColor(1,1,1)
 end
 
 

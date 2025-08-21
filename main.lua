@@ -1,3 +1,5 @@
+-- main.lua
+
 local Level1 = require("states.level-1")
 
 function love.load()
